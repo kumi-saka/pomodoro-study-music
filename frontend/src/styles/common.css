@@ -281,6 +281,15 @@ main {
     padding: 14px 32px;
 }
 
+/* 設定ページのキャンセルボタンのボーダーを白に */
+.settings-page .btn-secondary {
+    border-color: #ffffff;
+}
+
+.settings-page .btn-secondary:hover {
+    border-color: #ffffff;
+}
+
 /* フォーム */
 .form-group {
     margin-bottom: 12px;
