@@ -1,0 +1,28 @@
+package com.example.app.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class TrackResponse {
+    private List<Track> tracks;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Track {
+        private String id;
+        private String name;
+        private String artist;
+        private String album;
+        private String imageUrl;
+        private Integer durationMs;
+        private String uri;
+    }
+}
+
