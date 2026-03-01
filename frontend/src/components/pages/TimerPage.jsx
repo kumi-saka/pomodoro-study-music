@@ -39,6 +39,31 @@ const dummyTracks = [
     title: 'Nature Sounds - Forest Ambience',
     artist: 'Nature Sounds',
     image: 'https://picsum.photos/800/400?random=5'
+  },
+  {
+    title: 'Ambient Study - Background Focus',
+    artist: 'Study Music Lab',
+    image: 'https://picsum.photos/800/400?random=6'
+  },
+  {
+    title: 'Classical for Studying - Mozart',
+    artist: 'Classical Collection',
+    image: 'https://picsum.photos/800/400?random=7'
+  },
+  {
+    title: 'Rain Sounds - Cozy Study',
+    artist: 'Rainy Day Music',
+    image: 'https://picsum.photos/800/400?random=8'
+  },
+  {
+    title: 'Electronic Focus - Deep Work',
+    artist: 'Electronic Vibes',
+    image: 'https://picsum.photos/800/400?random=9'
+  },
+  {
+    title: 'Acoustic Guitar - Study Session',
+    artist: 'Acoustic Dreams',
+    image: 'https://picsum.photos/800/400?random=10'
   }
 ];
 
@@ -63,6 +88,13 @@ const TimerPage = () => {
     artist: 'ChilledCow',
     image: 'https://picsum.photos/800/400?random=1'
   }); // 表示用のトラック（ダミーまたはSpotify）
+  // 初期状態でダミートラックを設定
+  const initialTracks = dummyTracks.map((track, index) => ({
+    id: `dummy_track_${index}`,
+    ...track
+  }));
+  const [tracks, setTracks] = useState(initialTracks); // プレイリストのトラックリスト（初期値はダミートラック）
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0); // 現在のトラックインデックス
   const [playerInitialized, setPlayerInitialized] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [smallImageLoaded, setSmallImageLoaded] = useState(false);
@@ -593,6 +625,73 @@ const TimerPage = () => {
     }
   };
 
+  // プレイリストのトラックリストを取得
+  const fetchPlaylistTracks = useCallback(async (playlistId) => {
+    try {
+      const accessToken = getAccessToken();
+      if (!accessToken) {
+        console.error('アクセストークンが見つかりません');
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/spotify/playlists/${playlistId}/tracks`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('トラックリスト取得成功:', data);
+
+        // トラックデータを整形
+        const formattedTracks = (data.tracks || []).map(track => ({
+          id: track.id,
+          title: track.name,
+          artist: track.artist,
+          image: track.imageUrl || 'https://picsum.photos/300/300?random=' + Math.floor(Math.random() * 100),
+        }));
+
+        setTracks(formattedTracks);
+        setCurrentTrackIndex(0);
+
+        // 最初のトラックを表示用に設定
+        if (formattedTracks.length > 0) {
+          setDisplayTrack(formattedTracks[0]);
+        }
+      } else {
+        console.error('トラックリスト取得エラー:', response.status);
+        // モックモードの場合はダミートラックを使用
+        if (accessToken.startsWith('mock_')) {
+          const mockTracks = dummyTracks.map((track, index) => ({
+            id: `mock_track_${index}`,
+            ...track
+          }));
+          setTracks(mockTracks);
+          setCurrentTrackIndex(0);
+          setDisplayTrack(mockTracks[0]);
+        }
+      }
+    } catch (error) {
+      console.error('トラックリストの取得に失敗しました:', error);
+      // エラー時はダミートラックを使用
+      const mockTracks = dummyTracks.map((track, index) => ({
+        id: `mock_track_${index}`,
+        ...track
+      }));
+      setTracks(mockTracks);
+      setCurrentTrackIndex(0);
+      setDisplayTrack(mockTracks[0]);
+    }
+  }, []);
+
+  // プレイリストが選択されたときにトラックリストを取得
+  useEffect(() => {
+    if (selectedPlaylist && selectedPlaylist.id) {
+      fetchPlaylistTracks(selectedPlaylist.id);
+    }
+  }, [selectedPlaylist, fetchPlaylistTracks]);
+
 
   return (
     <div className="container timer-page">
@@ -668,6 +767,29 @@ const TimerPage = () => {
               <div className="music-artist">{(currentTrack || displayTrack).artist}</div>
             </div>
           </div>
+          {/* 次の曲リスト */}
+          {tracks.length > 0 && (
+            <div className="next-tracks-list">
+              {tracks.slice(currentTrackIndex + 1).map((track, index) => (
+                <div key={track.id || `track_${currentTrackIndex + 1 + index}`} className="next-track-item">
+                  <div className="next-track-thumbnail">
+                    <img
+                      src={track.image}
+                      alt={track.title}
+                      crossOrigin="anonymous"
+                      onError={(e) => {
+                        e.target.src = 'https://picsum.photos/300/300?random=' + (currentTrackIndex + 1 + index);
+                      }}
+                    />
+                  </div>
+                  <div className="next-track-text">
+                    <div className="next-track-title">{track.title}</div>
+                    <div className="next-track-artist">{track.artist}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="music-controls-section">
             <div className="player-controls">
               <button className="player-btn player-btn-prev" aria-label="前の曲">
@@ -793,10 +915,12 @@ const TimerPage = () => {
                     <div
                       key={playlist.id}
                       className="playlist-item"
-                      onClick={() => {
+                      onClick={async () => {
                         console.log('プレイリストが選択されました:', playlist.name);
                         setSelectedPlaylist(playlist);
                         setShowPlaylistModal(false);
+                        // トラックリストを取得
+                        await fetchPlaylistTracks(playlist.id);
                       }}
                     >
                       <div className="playlist-item-content">

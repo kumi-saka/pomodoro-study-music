@@ -6,13 +6,7 @@ const Header = () => {
     <header className="header">
       <div className="header-container">
         <Link to="/" className="logo">
-          <svg className="tomato-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <ellipse cx="12" cy="14" rx="9" ry="9" fill="#ffffff"/>
-            <path d="M12 2C11 2 10.5 2.5 10 3.5C9.5 4.5 9.5 5.5 10 6.5C10.5 7.5 11.5 8 12 8C12.5 8 13.5 7.5 14 6.5C14.5 5.5 14.5 4.5 14 3.5C13.5 2.5 13 2 12 2Z" fill="#ffffff" opacity="0.8"/>
-            <path d="M12 2L11.5 1L12 0L12.5 1L12 2Z" fill="#ffffff"/>
-            <ellipse cx="9" cy="12" rx="2" ry="2.5" fill="#ffffff" opacity="0.3"/>
-            <ellipse cx="15" cy="12" rx="2" ry="2.5" fill="#ffffff" opacity="0.3"/>
-          </svg>
+          <i className="fas fa-spaghetti-monster-flying" style={{ fontSize: '22px', color: '#ffffff' }}></i>
           Pomodoro Study Music
         </Link>
         <nav className="nav">
