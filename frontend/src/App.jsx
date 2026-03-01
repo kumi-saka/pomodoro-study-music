@@ -7,7 +7,7 @@ import SpotifyCallback from './components/pages/SpotifyCallback';
 
 function App() {
   return (
-    <Router>
+    <Router basename={import.meta.env.BASE_URL}>
       <div className="app">
         <Header />
         <Routes>

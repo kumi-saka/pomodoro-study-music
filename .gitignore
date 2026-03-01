@@ -45,3 +45,7 @@ LocalStorage確認方法.md
 
 *storybook.log
 storybook-static
+
+# frontend build/cache artifacts
+frontend/.npm-cache/
+frontend/dist/
